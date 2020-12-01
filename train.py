@@ -34,7 +34,7 @@ parser.add_argument("--base-data-dir", type=str, default='data')
 parser.add_argument("--data-path", type=str, default='data/train_MAFA')
 #--------------------model options--------------------
 parser.add_argument("--start-switch", type=str, default=None)
-parser.add_argument("--model", type=str, default="MobileFaceNetLite")
+parser.add_argument("--model", type=str, default="MobileFaceNetSuperLite")
 parser.add_argument("--model-restore", type=str, default=None)
 parser.add_argument("--head-restore", type=str, default=None)
 parser.add_argument("--model-save", type=str, default="checkpoints/mBFN.pth")

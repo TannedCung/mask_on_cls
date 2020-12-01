@@ -208,7 +208,7 @@ class MobileFaceNetSuperLite(Module):
         self.conv2_dw = Conv_block(64, 64, kernel=(3, 3), stride=(1, 1), padding=(1, 1), groups=64)
         self.conv_23 = Depth_Wise(64, 64, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=128)
         self.conv_3 = Residual(64, num_block=4, groups=128, kernel=(3, 3), stride=(1, 1), padding=(1, 1))
-        self.conv_3_sep = Conv_block(128, 128, kernel=(1, 1), stride=(1, 1), padding=(0, 0))
+        self.conv_3_sep = Conv_block(64, 128, kernel=(1, 1), stride=(1, 1), padding=(0, 0))
         self.conv_3_avgpool = nn.AdaptiveAvgPool2d(1)
         self.linear = nn.Linear(128, embedding_size, bias=False)
         # self.bn = nn.BatchNorm1d(embedding_size)
