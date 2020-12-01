@@ -12,7 +12,7 @@ class Extractor():
     def __init__(self):
         self.sherrif = spellingPolice()
         self.SAVE_PATH = "./data/train"
-        self.area_filter = 3000
+        self.area_filter = 20000
         self.infor = {}
         self.start = time.time()
         self.count = 0

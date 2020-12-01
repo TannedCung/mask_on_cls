@@ -74,6 +74,9 @@ if args.with_arc == False:
     
     elif args.model == "MobileFaceNetLite":
         Net = MobileFaceNetLite(embedding_size=args.num_classes)
+    
+    elif args.model == "MobileFaceNetSuperLite":
+        Net = MobileFaceNetSuperLite(embedding_size=args.num_classes)
 
     else:
         print("Model not implemented {}".format(args.model))
