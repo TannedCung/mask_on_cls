@@ -200,7 +200,29 @@ class Residual(Module):
         self.model = nn.Sequential(*modules)
     def forward(self, x):
         return self.model(x)
+
+class MobileFaceNetUltraLite(Module):
+    def __init__(self, embedding_size):
+        super(MobileFaceNetUltraLite, self).__init__()
+        self.conv1 = Conv_block(3, 64, kernel=(3, 3), stride=(2, 2), padding=(1, 1))
+        self.conv2_dw = Conv_block(64, 64, kernel=(3, 3), stride=(1, 1), padding=(1, 1), groups=64)
+        self.conv_23 = Depth_Wise(64, 64, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=128)
+        self.conv_3 = Residual(64, num_block=4, groups=128, kernel=(3, 3), stride=(1, 1), padding=(1, 1))
+        self.conv_3_avgpool = nn.AdaptiveAvgPool2d(1)
+        self.linear = nn.Linear(64, embedding_size, bias=False)
+        # self.bn = nn.BatchNorm1d(embedding_size)
     
+    def forward(self, x):
+        out = self.conv1(x)
+        out = self.conv2_dw(out)
+        out = self.conv_23(out)
+        out = self.conv_3(out)
+        out = self.conv_3_avgpool(out)
+        out = out.squeeze(2)
+        out = out.squeeze(2)
+        out = self.linear(out)
+        return out
+
 class MobileFaceNetSuperLite(Module):
     def __init__(self, embedding_size):
         super(MobileFaceNetSuperLite, self).__init__()

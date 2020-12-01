@@ -34,7 +34,7 @@ parser.add_argument("--base-data-dir", type=str, default='data')
 parser.add_argument("--data-path", type=str, default='data/train_MAFA')
 #--------------------model options--------------------
 parser.add_argument("--start-switch", type=str, default=None)
-parser.add_argument("--model", type=str, default="MobileFaceNetSuperLite")
+parser.add_argument("--model", type=str, default="MobileFaceNetUltraLite")
 parser.add_argument("--model-restore", type=str, default=None)
 parser.add_argument("--head-restore", type=str, default=None)
 parser.add_argument("--model-save", type=str, default="checkpoints/mBFN.pth")
@@ -51,7 +51,6 @@ criterion = nn.CrossEntropyLoss()
 # save_path = "checkpoints/model.pth"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
-
 if args.with_arc == False:
     if args.model == 'resnet18':
         Net = models.resnet18(num_classes=1000, pretrained=True)
@@ -77,6 +76,9 @@ if args.with_arc == False:
     
     elif args.model == "MobileFaceNetSuperLite":
         Net = MobileFaceNetSuperLite(embedding_size=args.num_classes)
+    
+    elif args.model == "MobileFaceNetUltraLite":
+        Net = MobileFaceNetUltraLite(embedding_size=args.num_classes)
 
     else:
         print("Model not implemented {}".format(args.model))
