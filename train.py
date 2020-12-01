@@ -2,7 +2,6 @@ from PIL import Image
 import cv2
 import torch
 from dataset.dataloader import ResNetDataset
-from dataset.dataloader2 import ResNetDataset2
 import torch.optim as optim
 import torch.nn as nn
 import torchvision.models as models
@@ -21,7 +20,7 @@ parser = argparse.ArgumentParser(description="Train face_mask, face_no_mask clas
 parser.add_argument("--optimizer", type=str, default="Adam", help="Adam, SGD")
 parser.add_argument("--learning-rate", type=float, default=0.001)
 parser.add_argument("--momentum", type=float, default=0.9)
-parser.add_argument("--batch-size", type=int, default=128)
+parser.add_argument("--batch-size", type=int, default=4)
 parser.add_argument("--num-classes", type=int, default=3)
 parser.add_argument("--start-epoch", type=int, default=0)
 parser.add_argument("--end-epoch", type=int, default=400)
@@ -30,12 +29,12 @@ parser.add_argument("--step", nargs='+', type=int, default=[6,12,24,48,96,192])
 parser.add_argument("--with-arc", type=bool, default=False)
 parser.add_argument("--dataloader", type=int, default=1)
 #--------------------Data options--------------------
-parser.add_argument("--alt-data-dir", type=str, required=True)
+parser.add_argument("--alt-data-dir", type=str, default='data', required=False)
 parser.add_argument("--base-data-dir", type=str, default='data')
-parser.add_argument("--data-path", type=str, default='data')
+parser.add_argument("--data-path", type=str, default='data/train_MAFA')
 #--------------------model options--------------------
 parser.add_argument("--start-switch", type=str, default=None)
-parser.add_argument("--model", type=str, default="MobileFaceNet")
+parser.add_argument("--model", type=str, default="MobileFaceNetLite")
 parser.add_argument("--model-restore", type=str, default=None)
 parser.add_argument("--head-restore", type=str, default=None)
 parser.add_argument("--model-save", type=str, default="checkpoints/mBFN.pth")
@@ -54,7 +53,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
 if args.with_arc == False:
-    elif args.model == 'resnet18':
+    if args.model == 'resnet18':
         Net = models.resnet18(num_classes=1000, pretrained=True)
         Net.fc = nn.Sequential(nn.Dropout(0.2),
                         nn.ReLU(),
@@ -74,7 +73,7 @@ if args.with_arc == False:
         Net = MobileFaceNet(embedding_size=args.num_classes)
     
     elif args.model == "MobileFaceNetLite":
-        NEt = MobileFaceNetLite(embedding_size=args.num_classes)
+        Net = MobileFaceNetLite(embedding_size=args.num_classes)
 
     else:
         print("Model not implemented {}".format(args.model))
@@ -87,7 +86,7 @@ if args.with_arc == False:
         else:
             print("Model restore not exist")
 
-    Net.cuda()
+    Net.to(device)
     Net.train()
     params = [*Net.parameters()]
 
@@ -99,10 +98,7 @@ if args.with_arc == False:
         print("Not implemented Optimizer {}".format(args.optimizer))
 
     my_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=args.step, gamma=args.gamma)
-    if args.dataloader==1:
-        Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir))
-    elif args.dataloader==2:
-        Uta = ResNetDataset2(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir))
+    Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir))
     data = torch.utils.data.DataLoader(Uta, batch_size=args.batch_size, shuffle=True)
     best = 0
     print("init net done")
@@ -166,7 +162,7 @@ if args.with_arc == False:
 
 # Train with arcloss
 else:
-    elif args.model == "resnet18" :
+    if args.model == "resnet18" :
         Net = models.resnet18(num_classes=1000, pretrained=True)
         Net = nn.Sequential(*(list(Net.children())[:-2]))
         Net.avgpool = nn.Sequential(nn.Flatten(),

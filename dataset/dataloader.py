@@ -20,12 +20,11 @@ class ResNetDataset(Dataset):
                 
         self.paths = []
         for c in self.classes:
-            for file in list(glob.glob(os.path.join(c, "*.*"))):
+            for file in list(glob.glob(os.path.join(self.train_path, os.path.join(c, "*.*")))):
                 self.paths.append(file)
 
         self.transform = T.Compose([T.Resize((128,128), interpolation=2),
-                                    T.RandomRotation(90),
-                                    T.RandomHorizontalFlip(),
+                                    T.RandomRotation(45),
                                     T.RandomVerticalFlip(),
                                     T.RandomGrayscale(),
                                     T.RandomSizedCrop((112,112)),
@@ -39,7 +38,7 @@ class ResNetDataset(Dataset):
     
     def __getitem__(self, idx):
          
-        X_path = self.paths[idx][:-1].replace(self.repl[0], self.repl[1])
+        X_path = self.paths[idx].replace(self.repl[0], self.repl[1])
         X = Image.open(X_path).convert("RGB")
         Y = self.paths[idx][:-1].split(os.path.sep)[-2]
         X = self.transform(X)
