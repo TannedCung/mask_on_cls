@@ -192,6 +192,45 @@ else:
                             nn.BatchNorm1d(2048))
         head = ArcMarginModel(emb_size=2048, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
 
+    elif args.model == "MobileFaceNetLite":
+        head = ArcMarginModel(emb_size=64, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
+        if args.start_switch is not None:
+            Net = torch.load(args.start_switch)
+            head.weight = Net.linear.weight
+            Net = nn.Sequential(*(list(Net.children())[:-1]))
+            Net.flat = nn.Flatten()
+            print("ArcFace model loaded from swtich")
+        else:
+            Net = MobileFaceNetLite(embedding_size=3)
+            Net = nn.Sequential(*(list(Net.children())[:-1]))
+            Net.flat = nn.Flatten()
+    
+    elif args.model == "MobileFaceNetSuperLite":
+        head = ArcMarginModel(emb_size=64, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
+        if args.start_switch is not None:
+            Net = torch.load(args.start_switch)
+            head.weight = Net.linear.weight
+            Net = nn.Sequential(*(list(Net.children())[:-1]))
+            Net.flat = nn.Flatten()
+            print("ArcFace model loaded from swtich")
+        else:
+            Net = MobileFaceNetSuperLite(embedding_size=3)
+            Net = nn.Sequential(*(list(Net.children())[:-1]))
+            Net.flat = nn.Flatten()
+    
+    elif args.model == "MobileFaceNetUltraLite":
+        head = ArcMarginModel(emb_size=64, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
+        if args.start_switch is not None:
+            Net = torch.load(args.start_switch)
+            head.weight = Net.linear.weight
+            Net = nn.Sequential(*(list(Net.children())[:-1]))
+            Net.flat = nn.Flatten()
+            print("ArcFace model loaded from swtich")
+        else:
+            Net = MobileFaceNetUltraLite(embedding_size=3)
+            Net = nn.Sequential(*(list(Net.children())[:-1]))
+            Net.flat = nn.Flatten()
+
     else:
         print("Model not implemented {}".format(args.model))
 
