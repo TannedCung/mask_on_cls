@@ -293,6 +293,8 @@ else:
             opt.zero_grad()
     
             out = Net(X)
+            print(out.shape)
+            print(Y.shape)
             out = head(out, Y)
             loss = criterion(out, Y)
             loss.backward()
