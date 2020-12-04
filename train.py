@@ -196,6 +196,7 @@ else:
         head = ArcMarginModel(emb_size=64, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
         if args.start_switch is not None:
             Net = torch.load(args.start_switch)
+            print(Net)
             head.weight = Net.linear.weight
             Net = nn.Sequential(*(list(Net.children())[:-1]))
             Net.flat = nn.Flatten()
@@ -209,6 +210,7 @@ else:
         head = ArcMarginModel(emb_size=64, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
         if args.start_switch is not None:
             Net = torch.load(args.start_switch)
+            print(Net)
             head.weight = Net.linear.weight
             Net = nn.Sequential(*(list(Net.children())[:-1]))
             Net.flat = nn.Flatten()
@@ -222,6 +224,7 @@ else:
         head = ArcMarginModel(emb_size=64, num_classes=args.num_classes, margin_s=args.m, margin_m=args.s)
         if args.start_switch is not None:
             Net = torch.load(args.start_switch)
+            print(Net)
             head.weight = Net.linear.weight
             Net = nn.Sequential(*(list(Net.children())[:-1]))
             Net.flat = nn.Flatten()
