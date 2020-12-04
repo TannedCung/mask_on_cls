@@ -237,7 +237,7 @@ else:
     else:
         print("Model not implemented {}".format(args.model))
 
-    if args.model_restore is not None:
+    if args.model_restore is not None and args.start_switch is None:
         if os.path.exists(args.model_restore):
             # Net.load_state_dict(torch.load(NET_PTH))
             Net = torch.load(args.model_restore)
@@ -293,8 +293,6 @@ else:
             opt.zero_grad()
     
             out = Net(X)
-            print(out.shape)
-            print(Y.shape)
             out = head(out, Y)
             loss = criterion(out, Y)
             loss.backward()
