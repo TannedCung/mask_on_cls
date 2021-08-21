@@ -7,11 +7,29 @@ from PIL import Image
 import torch.nn.functional as F
 
 class ResNetDataset(Dataset):
-    def __init__(self, path, transforms=None, repl=("", "")):
+    def __init__(self, path, transforms=None, repl=("", ""), type="train"):
         self.repl = repl
         self.mean = [0.485, 0.456, 0.406]
         self.std = [0.229, 0.224, 0.225]
-        self.train_path = os.path.join(path, "train")
+        if type=="train":
+            self.train_path = os.path.join(path, "train")
+            self.transform = T.Compose([T.Resize((128,128), interpolation=2),
+                                        # T.RandomRotation(45),
+                                        T.RandomVerticalFlip(),
+                                        T.RandomGrayscale(),
+                                        T.RandomSizedCrop((112,112)),
+                                        T.ColorJitter(brightness=0.4, contrast=0.4,saturation=0.4),
+                                        T.GaussianBlur(kernel_size=5),
+                                        T.ToTensor(),
+                                        T.Normalize(self.mean, self.std)])
+        elif type=="test":
+            self.train_path = os.path.join(path, "test")
+            self.transform = T.Compose([T.Resize((112,112), interpolation=2),
+                                        T.ToTensor(),
+                                        T.Normalize(self.mean, self.std)])
+        else:
+            print(f"[ERR]: Unknown dataloader type")
+            return -1
 
         self.classes = []
         for d in os.listdir(self.train_path):
@@ -23,13 +41,6 @@ class ResNetDataset(Dataset):
             for file in list(glob.glob(os.path.join(self.train_path, os.path.join(c, "*.*")))):
                 self.paths.append(file)
 
-        self.transform = T.Compose([T.Resize((128,128), interpolation=2),
-                                    # T.RandomRotation(45),
-                                    T.RandomVerticalFlip(),
-                                    T.RandomGrayscale(),
-                                    T.RandomSizedCrop((112,112)),
-                                    T.ToTensor(),
-                                    T.Normalize(self.mean, self.std)])
         self.classes.sort()
         print("Dataset loaded with {} images of {} classes".format(len(self.paths),len(self.classes)))
 

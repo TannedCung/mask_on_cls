@@ -103,8 +103,11 @@ if args.with_arc == False:
         print("Not implemented Optimizer {}".format(args.optimizer))
 
     my_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=args.step, gamma=args.gamma)
-    Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir))
+    Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="train")
     data = torch.utils.data.DataLoader(Uta, batch_size=args.batch_size, shuffle=True)
+
+    test_Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="test")
+    test_data = torch.utils.data.DataLoader(test_Uta, batch_size=args.batch_size, shuffle=True)
     best = 0
     print("init net done")
     
@@ -164,6 +167,44 @@ if args.with_arc == False:
         else:
             print("model not saved as best >= acc, current best : {}".format(best))
             save_progress(state="FAIL    ", epoch= epoch+1, train_loss=train_loss/len(data.sampler), train_acc=100*correct/total)
+
+        if epoch%20==0:
+            print ("====== Evaluating ======")
+            classes_correct = [0 ,0]
+            classes_total = [0, 0]
+            for i, d in enumerate(test_data):
+                [X, Y] = d[0].to(device), d[1].to(device)
+        
+                opt.zero_grad()
+        
+                out = Net(X)
+                idx = np.zeros(len(Y))
+                # print(out[0].shape)
+                # print(Y.shape)
+                for j, o in enumerate(out):
+                    idx[j] = o.data.cpu().numpy().argmax()
+                idx = torch.from_numpy(idx).type(torch.int64)
+                
+                for j in range((len(idx))):
+                    if Y[j]==0:
+                        classes_total[0]+=1
+                    else:
+                        classes_total[1]+=1
+                        
+                    if idx[j] == Y[j] == 0:
+                        classes_correct[0] += 1
+                        correct += 1
+                    elif idx[j] == Y[j] == 1:
+                        classes_correct[1] += 1
+                        correct += 1
+                    else:
+                        continue
+                    
+                total += len(idx)
+
+        acc = 100*correct/total
+        print(f"[INFO]: acc {acc} classes_acc = [{classes_correct[0]/classes_total[0]},{classes_correct[1]/classes_total[1]}]")
+        print(f"num_covered: {classes_total[0]}, num_uncovered: {classes_total[1]}, total: {total}")           
 
 # Train with arcloss
 else:
