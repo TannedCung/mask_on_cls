@@ -205,9 +205,9 @@ if args.with_arc == False:
                     
                 total += len(idx)
 
-        acc = 100*correct/total
-        print(f"[INFO]: acc {acc} classes_acc = [{classes_correct[0]/classes_total[0]},{classes_correct[1]/classes_total[1]}]")
-        print(f"num_covered: {classes_total[0]}, num_uncovered: {classes_total[1]}, total: {total}")           
+            acc = 100*correct/total
+            print(f"[INFO]: acc {acc} classes_acc = [{classes_correct[0]/classes_total[0]},{classes_correct[1]/classes_total[1]}]")
+            print(f"num_covered: {classes_total[0]}, num_uncovered: {classes_total[1]}, total: {total}")           
 
 # Train with arcloss
 else:
