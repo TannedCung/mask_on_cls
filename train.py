@@ -172,6 +172,7 @@ if args.with_arc == False:
         if epoch%20==0:
             Net.eval()
             total=0
+            correct=0
             cpu = torch.device("cpu")
             print ("====== Evaluating ======")
             classes_correct = [0 ,0]
