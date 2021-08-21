@@ -41,6 +41,7 @@ class ResNetDataset(Dataset):
         X_path = self.paths[idx].replace(self.repl[0], self.repl[1])
         X = Image.open(X_path).convert("RGB")
         Y = self.paths[idx][:-1].split(os.path.sep)[-2]
+        print(Y, self.classes)
         X = self.transform(X)
         Y = self.classes.index(Y)
         # Y = torch.tensor(Y, dtype=torch.long)
