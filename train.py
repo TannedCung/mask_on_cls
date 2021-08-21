@@ -92,7 +92,6 @@ if args.with_arc == False:
             print("Model restore not exist")
 
     Net.to(device)
-    Net.train()
     params = [*Net.parameters()]
 
     if args.optimizer == "Adam":
@@ -105,6 +104,7 @@ if args.with_arc == False:
     my_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=args.step, gamma=args.gamma)
     Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="train")
     data = torch.utils.data.DataLoader(Uta, batch_size=args.batch_size, shuffle=True)
+    Net.to(device)
 
     test_Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="test")
     test_data = torch.utils.data.DataLoader(test_Uta, batch_size=args.batch_size, shuffle=True)
@@ -118,6 +118,7 @@ if args.with_arc == False:
         file.close()
     
     for epoch in range(args.start_epoch, args.end_epoch):
+        Net.train()
         running_loss = 0
         train_loss = 0
         valid_loss = 0
@@ -169,13 +170,13 @@ if args.with_arc == False:
             save_progress(state="FAIL    ", epoch= epoch+1, train_loss=train_loss/len(data.sampler), train_acc=100*correct/total)
 
         if epoch%20==0:
+            Net.eval()
+            cpu = torch.device("cpu")
             print ("====== Evaluating ======")
             classes_correct = [0 ,0]
             classes_total = [0, 0]
             for i, d in enumerate(test_data):
-                [X, Y] = d[0].to(device), d[1].to(device)
-        
-                opt.zero_grad()
+                [X, Y] = d[0].to(device), d[1].to(cpu)
         
                 out = Net(X)
                 idx = np.zeros(len(Y))
