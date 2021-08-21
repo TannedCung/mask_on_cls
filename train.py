@@ -107,7 +107,7 @@ if args.with_arc == False:
     Net.to(device)
 
     test_Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="test")
-    test_data = torch.utils.data.DataLoader(test_Uta, batch_size=args.batch_size, shuffle=True)
+    test_data = torch.utils.data.DataLoader(test_Uta, batch_size=32, shuffle=True)
     best = 0
     print("init net done")
     
