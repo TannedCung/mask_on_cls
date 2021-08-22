@@ -209,7 +209,7 @@ class MobileFaceNetUltraLite(Module):
         self.conv_23 = Depth_Wise(64, 32, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=128)
         self.conv_3 = Residual(32, num_block=2, groups=128, kernel=(3, 3), stride=(1, 1), padding=(1, 1))
         self.conv_3_avgpool = nn.AdaptiveAvgPool2d(1)
-        self.drop = nn.Dropout(0.5)
+        self.drop = nn.Dropout(0.2)
         self.linear = nn.Linear(32, embedding_size, bias=False)
         # self.bn = nn.BatchNorm1d(embedding_size)
     
