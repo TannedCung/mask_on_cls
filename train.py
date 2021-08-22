@@ -169,7 +169,7 @@ if args.with_arc == False:
             print("model not saved as best >= acc, current best : {}".format(best))
             save_progress(state="FAIL    ", epoch= epoch+1, train_loss=train_loss/len(data.sampler), train_acc=100*correct/total)
 
-        if epoch%20==0:
+        if epoch%5==0:
             Net.eval()
             total=0
             correct=0
