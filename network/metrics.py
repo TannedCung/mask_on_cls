@@ -206,13 +206,11 @@ class MobileFaceNetUltraLite(Module):
         super(MobileFaceNetUltraLite, self).__init__()
         self.conv1 = Conv_block(3, 64, kernel=(3, 3), stride=(2, 2), padding=(1, 1))
         # self.conv2_dw = Conv_block(64, 64, kernel=(3, 3), stride=(1, 1), padding=(1, 1), groups=64)
-        self.conv_23 = Depth_Wise(64, 64, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=128)
-        self.conv_3 = Residual(64, num_block=4, groups=128, kernel=(3, 3), stride=(1, 1), padding=(1, 1))
+        self.conv_23 = Depth_Wise(64, 32, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=128)
+        self.conv_3 = Residual(32, num_block=2, groups=128, kernel=(3, 3), stride=(1, 1), padding=(1, 1))
         self.conv_3_avgpool = nn.AdaptiveAvgPool2d(1)
         self.drop = nn.Dropout(0.5)
-        self.relu = nn.ReLU()
-        self.bn = nn.BatchNorm1d(64)
-        self.linear = nn.Linear(64, embedding_size, bias=False)
+        self.linear = nn.Linear(32, embedding_size, bias=False)
         # self.bn = nn.BatchNorm1d(embedding_size)
     
     def forward(self, x):
@@ -224,8 +222,6 @@ class MobileFaceNetUltraLite(Module):
         out = out.squeeze(2)
         out = out.squeeze(2)
         out = self.drop(out)
-        out = self.relu(out)
-        out = self.bn(out)
         out = self.linear(out)
         return out
 
