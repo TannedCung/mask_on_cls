@@ -136,7 +136,7 @@ if args.with_arc == False:
 
     def freeze_Resnet(Net):
         for i, child in enumerate(Net.children()):
-            if i == len(list(Net.children())):
+            if i != len(list(Net.children())-1):
                 for p in child.parameters():
                     p.require_grad = False
                     p.requires_grad = False
@@ -148,6 +148,7 @@ if args.with_arc == False:
                 p.requires_grad = True
     
     freezed = False
+    unfreezed = False
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
         running_loss = 0
@@ -163,9 +164,10 @@ if args.with_arc == False:
             freeze_Resnet(Net)
             freezed = True
         
-        if freezed and epoch > args.tune_epoch:
+        if freezed and epoch > args.tune_epoch and not unfreezed:
             print("[INFO]: Unfreeze resnet")
             unfreeze_Resnet(Net)
+            unfreezed = True
 
         for i, d in enumerate(data):
             [X, Y] = d[0].to(device), d[1].to(device)
