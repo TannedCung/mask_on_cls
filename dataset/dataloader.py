@@ -14,7 +14,7 @@ class ResNetDataset(Dataset):
         if type=="train":
             self.train_path = os.path.join(path, "train")
             self.transform = T.Compose([T.Resize((128,128), interpolation=2),
-                                        # T.RandomRotation(45),
+                                        T.RandomRotation(45),
                                         T.RandomVerticalFlip(),
                                         T.RandomGrayscale(),
                                         T.RandomSizedCrop((112,112)),

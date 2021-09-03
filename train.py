@@ -24,6 +24,7 @@ parser.add_argument("--batch-size", type=int, default=4)
 parser.add_argument("--num-classes", type=int, default=3)
 parser.add_argument("--start-epoch", type=int, default=0)
 parser.add_argument("--end-epoch", type=int, default=400)
+parser.add_argument("--tune-epoch", type=int, default=20)
 parser.add_argument("--gamma", type=float, default=0.05)
 parser.add_argument("--step", nargs='+', type=int, default=[6,12,24,48,96,192])
 parser.add_argument("--with-arc", type=bool, default=False)
@@ -72,16 +73,16 @@ if args.with_arc == False:
         Net = models.resnet50(num_classes=1000, pretrained=True)
         Net.fc = nn.Sequential(nn.Dropout(0.5),
                         nn.ReLU(),
-                        nn.BatchNorm1d(512),
-                        nn.Linear(512, args.num_classes)
+                        nn.BatchNorm1d(2048),
+                        nn.Linear(2048, args.num_classes)
                         )   
 
     elif args.model == 'resnet101':
         Net = models.resnet101(num_classes=1000, pretrained=True)
         Net.fc = nn.Sequential(nn.Dropout(0.5),
                         nn.ReLU(),
-                        nn.BatchNorm1d(512),
-                        nn.Linear(512, args.num_classes)
+                        nn.BatchNorm1d(2048),
+                        nn.Linear(2048, args.num_classes)
                         )        
 
     elif args.model == "MobileFaceNet":
@@ -132,7 +133,21 @@ if args.with_arc == False:
         txt = "{}  epoch: {}       loss: {:.5}      acc: {:.5} ".format(state, epoch, train_loss, train_acc)
         file.write(txt+"\n")
         file.close()
+
+    def freeze_Resnet(Net):
+        for i, child in enumerate(Net.children()):
+            if i == len(list(Net.children())):
+                for p in child.parameters():
+                    p.require_grad = False
+                    p.requires_grad = False
+        
+    def unfreeze_Resnet(Net):
+        for i, child in enumerate(Net.children()):
+            for p in child.parameters():
+                p.require_grad = True
+                p.requires_grad = True
     
+    freezed = False
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
         running_loss = 0
@@ -143,6 +158,15 @@ if args.with_arc == False:
         correct = 0
         vtotal = 0
         vcorrect = 0
+        if not freezed and epoch <= args.tune_epoch and "resnet" in args.model:
+            print(f"[INFO]: freeze resnet for {args.tune_epoch - epoch} epochs")
+            freeze_Resnet(Net)
+            freezed = True
+        
+        if freezed and epoch > args.tune_epoch:
+            print("[INFO]: Unfreeze resnet")
+            unfreeze_Resnet(Net)
+
         for i, d in enumerate(data):
             [X, Y] = d[0].to(device), d[1].to(device)
     
