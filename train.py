@@ -136,7 +136,7 @@ if args.with_arc == False:
 
     def freeze_Resnet(Net):
         for i, child in enumerate(Net.children()):
-            if i != len(list(Net.children())-1):
+            if i != len(list(Net.children())) -1:
                 for p in child.parameters():
                     p.require_grad = False
                     p.requires_grad = False
