@@ -592,6 +592,24 @@ def resnetcus(poolling_size ,pretrained=False, progress=True, **kwargs):
     return _resnetcus('resnetcus', BasicBlock, [1, 1, 1, 1], poolling_size, pretrained, progress,
                    **kwargs)
 
+class ResNet14Cus(Module):
+    def __init__(self, embedding_size=2):
+        super(ResNet14Cus, self).__init__()
+        self.res_model = resnetcus(poolling_size=1)
+        self.fc = nn.Sequential(nn.Dropout(0.3),
+                    nn.ReLU(),
+                    nn.BatchNorm1d(512),
+                    nn.Linear(512, embedding_size)
+                    )  
+
+    def forward(self, x):
+        out = self.res_model(x)
+        out = out.squeeze(2)
+        out = out.squeeze(2)
+        out = self.fc(out)
+
+        return out
+
 # ################### Ensemble models ################### 
 
 class MobileFaceNetSLC(Module):
