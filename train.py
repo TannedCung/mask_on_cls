@@ -97,6 +97,9 @@ if args.with_arc == False:
     elif args.model == "MobileFaceNetUltraLite":
         Net = MobileFaceNetUltraLite(embedding_size=args.num_classes)
 
+    elif args.model == "EnsemResMBF":
+        Net = Ensem_res_mbf(embedding_size=args.num_classes)
+        
     else:
         print("Model not implemented {}".format(args.model))
 
