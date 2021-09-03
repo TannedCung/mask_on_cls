@@ -66,7 +66,23 @@ if args.with_arc == False:
                         nn.ReLU(),
                         nn.BatchNorm1d(512),
                         nn.Linear(512, args.num_classes)
-                        )           
+                        )  
+
+    elif args.model == 'resnet50':
+        Net = models.resnet50(num_classes=1000, pretrained=True)
+        Net.fc = nn.Sequential(nn.Dropout(0.5),
+                        nn.ReLU(),
+                        nn.BatchNorm1d(512),
+                        nn.Linear(512, args.num_classes)
+                        )   
+
+    elif args.model == 'resnet101':
+        Net = models.resnet101(num_classes=1000, pretrained=True)
+        Net.fc = nn.Sequential(nn.Dropout(0.5),
+                        nn.ReLU(),
+                        nn.BatchNorm1d(512),
+                        nn.Linear(512, args.num_classes)
+                        )        
 
     elif args.model == "MobileFaceNet":
         Net = MobileFaceNet(embedding_size=args.num_classes)
