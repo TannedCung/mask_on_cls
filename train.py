@@ -40,6 +40,9 @@ parser.add_argument("--model-restore", type=str, default=None)
 parser.add_argument("--head-restore", type=str, default=None)
 parser.add_argument("--model-save", type=str, default="checkpoints/mBFN.pth")
 parser.add_argument("--head-save", type=str, default="checkpoints/mBFN_head.pth")
+parser.add_argument("--opt-save", type=str, default="checkpoints/opt.pth")
+parser.add_argument("--lr-save", type=str, default="checkpoints/lr.pth")
+
 #--------------------ArcLoss options --------------------
 parser.add_argument("--m", type=float, default=10)
 parser.add_argument("--s", type=float, default=0.3)
@@ -109,7 +112,7 @@ if args.with_arc == False:
     if args.model_restore is not None:
         if os.path.exists(args.model_restore):
             # Net.load_state_dict(torch.load(NET_PTH))
-            Net = torch.load(args.model_restore)
+            Net = torch.load(args.model_restore, map_location=device)
             print("Model loaded from {}".format(args.model_restore))
         else:
             print("Model restore not exist")
@@ -123,8 +126,21 @@ if args.with_arc == False:
         opt = optim.SGD(params, lr=args.learning_rate, momentum=args.momentum)
     else:
         print("Not implemented Optimizer {}".format(args.optimizer))
+    
+    if args.opt_save is not None:
+        if os.path.exists(args.opt_save):
+            # Net.load_state_dict(torch.load(NET_PTH))
+            opt = torch.load(args.opt_save, map_location=device)
+            print("opt loaded from {}".format(args.opt_save))
 
     my_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=args.step, gamma=args.gamma)
+
+    if args.lr_save is not None:
+        if os.path.exists(args.lr_save):
+            # Net.load_state_dict(torch.load(NET_PTH))
+            my_lr_scheduler = torch.load(args.lr_save, map_location=device)
+            print("my_lr_scheduler loaded from {}".format(args.lr_save))
+
     Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="train")
     data = torch.utils.data.DataLoader(Uta, batch_size=args.batch_size, shuffle=True)
     Net.to(device)
@@ -158,7 +174,7 @@ if args.with_arc == False:
     if args.start_epoch > 0:
         for i in range(args.start_epoch):
             my_lr_scheduler.step()
-            
+
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
         running_loss = 0
@@ -169,15 +185,15 @@ if args.with_arc == False:
         correct = 0
         vtotal = 0
         vcorrect = 0
-        if not freezed and epoch <= args.tune_epoch and "resnet" in args.model:
-            print(f"[INFO]: freeze resnet for {args.tune_epoch - epoch} epochs")
-            freeze_Resnet(Net)
-            freezed = True
+        # if not freezed and epoch <= args.tune_epoch and "resnet" in args.model:
+        #     print(f"[INFO]: freeze resnet for {args.tune_epoch - epoch} epochs")
+        #     freeze_Resnet(Net)
+        #     freezed = True
         
-        if freezed and epoch > args.tune_epoch and not unfreezed:
-            print("[INFO]: Unfreeze resnet")
-            unfreeze_Resnet(Net)
-            unfreezed = True
+        # if freezed and epoch > args.tune_epoch and not unfreezed:
+        #     print("[INFO]: Unfreeze resnet")
+        #     unfreeze_Resnet(Net)
+        #     unfreezed = True
 
         for i, d in enumerate(data):
             [X, Y] = d[0].to(device), d[1].to(device)
@@ -208,7 +224,7 @@ if args.with_arc == False:
                 start = time.time()
                 running_loss = 0.0
 
-        print ("====== Epoch {} Loss: {:.5}, acc: {:.5}% ======".format(epoch+1, train_loss/len(data.sampler), 100*correct/total))
+        print ("====== Epoch {} Loss: {:.5}, acc: {:.5}%, lr: {} ======".format(epoch+1, train_loss/len(data.sampler), 100*correct/total, opt.param_groups[0]["lr"]))
         my_lr_scheduler.step()
         if best <= 100*correct/total:
             torch.save(Net, args.model_save)
