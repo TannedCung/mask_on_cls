@@ -120,6 +120,9 @@ if args.with_arc == False:
     Net.to(device)
     params = [*Net.parameters()]
 
+    opt_restore = False
+    lr_restore = False
+
     if args.optimizer == "Adam":
         opt = optim.Adam(params, lr=args.learning_rate)
     elif args.optimizer == "SGD":
@@ -131,6 +134,7 @@ if args.with_arc == False:
         if os.path.exists(args.opt_save):
             # Net.load_state_dict(torch.load(NET_PTH))
             opt = torch.load(args.opt_save, map_location=device)
+            opt_restore = True
             print("opt loaded from {}".format(args.opt_save))
 
     my_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=args.step, gamma=args.gamma)
@@ -139,6 +143,7 @@ if args.with_arc == False:
         if os.path.exists(args.lr_save):
             # Net.load_state_dict(torch.load(NET_PTH))
             my_lr_scheduler = torch.load(args.lr_save, map_location=device)
+            lr_restore = True
             print("my_lr_scheduler loaded from {}".format(args.lr_save))
 
     Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="train")
@@ -173,7 +178,8 @@ if args.with_arc == False:
     unfreezed = False
     if args.start_epoch > 0:
         for i in range(args.start_epoch):
-            my_lr_scheduler.step()
+            opt.step() if opt_restore else 0
+            my_lr_scheduler.step() if lr_restore else 0
 
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
