@@ -178,8 +178,8 @@ if args.with_arc == False:
     unfreezed = False
     if args.start_epoch > 0:
         for i in range(args.start_epoch):
-            opt.step() if opt_restore else 0
-            my_lr_scheduler.step() if lr_restore else 0
+            opt.step() if not opt_restore else 0
+            my_lr_scheduler.step() if not lr_restore else 0
 
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
