@@ -155,6 +155,10 @@ if args.with_arc == False:
     
     freezed = False
     unfreezed = False
+    if args.start_epoch > 0:
+        for i in range(args.start_epoch):
+            my_lr_scheduler.step()
+            
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
         running_loss = 0
