@@ -3,8 +3,43 @@ from torchvision import transforms as T
 from torch.utils.data import Dataset, DataLoader
 import os
 import glob
+import torch.nn as nn
+import numpy as np
 from PIL import Image
 import torch.nn.functional as F
+import PIL
+
+
+class SaltAndPepperNoise(nn.Module):
+    def __init__(self,
+                 imgType:str = "PIL",
+                 lowerValue:int = 5,
+                 upperValue:int = 250,
+                 noiseType:str = "RGB"):
+        self.imgType = imgType
+        self.lowerValue = lowerValue # 255 would be too high
+        self.upperValue = upperValue # 0 would be too low
+        self.noiseType = noiseType
+        super(SaltAndPepperNoise, self).__init__()
+
+    def __call__(self, img):
+        if self.imgType == "PIL":
+            img = np.array(img)
+        
+        threshold = np.random.uniform(0,0.008)
+        if self.noiseType == "SnP":
+            random_matrix = np.random.rand(img.shape[0],img.shape[1])
+            img[random_matrix>=(1-threshold)] = self.upperValue
+            img[random_matrix<=threshold] = self.lowerValue
+        elif self.noiseType == "RGB":
+            random_matrix = np.random.random(img.shape)      
+            img[random_matrix>=(1-threshold)] = self.upperValue
+            img[random_matrix<=threshold] = self.lowerValue
+        if self.imgType == "cv2":
+            return img
+        elif self.imgType == "PIL":
+            # return as PIL image for torchvision transforms compliance
+            return PIL.Image.fromarray(img)
 
 class ResNetDataset(Dataset):
     def __init__(self, path, transforms=None, repl=("", ""), type="train"):
@@ -15,6 +50,11 @@ class ResNetDataset(Dataset):
             self.train_path = os.path.join(path, "train")
             self.transform = T.Compose([T.Resize((128,128), interpolation=2),
                                         T.RandomRotation(5),
+                                        T.RandomApply(torch.nn.ModuleList([
+                                            T.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 5)),
+                                            SaltAndPepperNoise()]),
+                                            p=0.3
+                                            ),
                                         T.RandomVerticalFlip(),
                                         T.RandomGrayscale(),
                                         T.RandomSizedCrop((112,112)),
