@@ -66,7 +66,8 @@ if args.with_arc == False:
 
     elif args.model == 'resnet34':
         Net = models.resnet34(num_classes=1000, pretrained=True)
-        Net.fc = nn.Sequential(nn.Dropout(0.3),
+        Net.fc = nn.Sequential(
+                        # nn.Dropout(0.3),
                         nn.ReLU(),
                         nn.BatchNorm1d(512),
                         nn.Linear(512, args.num_classes)
