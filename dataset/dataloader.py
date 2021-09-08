@@ -32,7 +32,12 @@ class SaltAndPepperNoise(nn.Module):
             img[random_matrix>=(1-threshold)] = self.upperValue
             img[random_matrix<=threshold] = self.lowerValue
         elif self.noiseType == "RGB":
-            random_matrix = np.random.random(img.shape)      
+            if np.random.choice([0,1]) == 0:
+                random_matrix = np.random.random(img.shape)     
+            else:
+                one = np.random.rand(img.shape[0],img.shape[1])
+                one = np.expand_dims(one, -1)
+                random_matrix = np.concatenate((one, one, one), axis=2)
             img[random_matrix>=(1-threshold)] = self.upperValue
             img[random_matrix<=threshold] = self.lowerValue
         if self.imgType == "cv2":
@@ -49,7 +54,7 @@ class ResNetDataset(Dataset):
         if type=="train":
             self.train_path = os.path.join(path, "train")
             self.transform = T.Compose([T.Resize((128,128), interpolation=2),
-                                        T.RandomRotation(5),
+                                        T.RandomRotation(15),
                                         T.RandomApply(torch.nn.ModuleList([
                                             T.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 5)),
                                             SaltAndPepperNoise()]),
@@ -58,8 +63,8 @@ class ResNetDataset(Dataset):
                                         T.RandomVerticalFlip(),
                                         T.RandomGrayscale(),
                                         T.RandomSizedCrop((112,112)),
-                                        T.ColorJitter(brightness=0.4, contrast=0.4,saturation=0.4),
-                                        T.GaussianBlur(kernel_size=5),
+                                        T.ColorJitter(brightness=0.4, contrast=0.7,saturation=0.7, hue=0.2),
+                                        # T.GaussianBlur(kernel_size=5),
                                         T.ToTensor(),
                                         T.Normalize(self.mean, self.std)])
         elif type=="test":
@@ -97,3 +102,7 @@ class ResNetDataset(Dataset):
         # Y = torch.tensor(Y, dtype=torch.long)
         data = [X, Y]
         return data
+
+if __name__=="__main__":
+    test = Image.open("/mnt/sdb3/Git_mess/mask_on_face_cls/test_2.jpg")
+    print("a")
