@@ -153,7 +153,7 @@ if args.with_arc == False:
 
     test_Uta = ResNetDataset(path=args.data_path, repl=(args.base_data_dir, args.alt_data_dir), type="test")
     test_data = torch.utils.data.DataLoader(test_Uta, batch_size=32, shuffle=True)
-    best = 0
+    best = 0.0
     print("init net done")
     
     def save_progress(state, epoch, train_loss, train_acc):
