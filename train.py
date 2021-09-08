@@ -231,17 +231,17 @@ if args.with_arc == False:
                 start = time.time()
                 running_loss = 0.0
 
-        print ("====== Epoch {} Loss: {:.5}, acc: {:.5}%, lr: {} ======".format(epoch+1, train_loss/len(data.sampler), 100*correct/total, opt.param_groups[0]["lr"]))
+        print ("====== Epoch {} Loss: {:.5}, acc: {:.5}%, best: {:.5}%, lr: {} ======".format(epoch+1, train_loss/len(data.sampler), 100*correct/total, best, opt.param_groups[0]["lr"]))
         my_lr_scheduler.step()
         if best <= 100*correct/total:
             torch.save(Net, args.model_save)
             # torch.save(metric_fc.weight, HEAD_PTH)
-            print("model saved to {}".format(args.model_save))
+            # print("model saved to {}".format(args.model_save))
             best = 100*correct/total
             save_progress(state="SAVED   ", epoch= epoch+1, train_loss=train_loss/len(data.sampler), train_acc=best)
 
         else:
-            print("model not saved as best >= acc, current best : {}".format(best))
+            # print("model not saved as best >= acc, current best : {}".format(best))
             save_progress(state="FAIL    ", epoch= epoch+1, train_loss=train_loss/len(data.sampler), train_acc=100*correct/total)
 
         if epoch%5==0:
