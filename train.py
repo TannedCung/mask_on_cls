@@ -192,6 +192,8 @@ if args.with_arc == False:
         correct = 0
         vtotal = 0
         vcorrect = 0
+
+        eval_acc =0.0
         # if not freezed and epoch <= args.tune_epoch and "resnet" in args.model:
         #     print(f"[INFO]: freeze resnet for {args.tune_epoch - epoch} epochs")
         #     freeze_Resnet(Net)
@@ -231,7 +233,7 @@ if args.with_arc == False:
                 start = time.time()
                 running_loss = 0.0
 
-        print ("====== Epoch {} Loss: {:.5}, acc: {:.5}%, best: {:.5}%, lr: {} ======".format(epoch+1, train_loss/len(data.sampler), 100*correct/total, best, opt.param_groups[0]["lr"]))
+        print ("====== Epoch {} Loss: {:.5}, acc: {:.5}%, best: {:.5}%, eval_acc: {:.5}, lr: {} ======".format(epoch+1, train_loss/len(data.sampler), 100*correct/total, best, eval_acc, opt.param_groups[0]["lr"]))
         my_lr_scheduler.step()
         if best <= 100*correct/total:
             torch.save(Net, args.model_save)
@@ -280,8 +282,8 @@ if args.with_arc == False:
                     
                 total += len(idx)
 
-            acc = 100*correct/total
-            print(f"[INFO]: acc {acc} classes_acc = [{classes_correct[0]/classes_total[0]},{classes_correct[1]/classes_total[1]}]")
+            eval_acc = 100*correct/total
+            print(f"[INFO]: acc {eval_acc} classes_acc = [{classes_correct[0]/classes_total[0]},{classes_correct[1]/classes_total[1]}]")
             print(f"num_covered: {classes_total[0]}, num_uncovered: {classes_total[1]}, total: {total}")           
 
 # Train with arcloss
