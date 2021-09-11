@@ -182,6 +182,7 @@ if args.with_arc == False:
             opt.step() if not opt_restore else 0
             my_lr_scheduler.step() if not lr_restore else 0
 
+    eval_acc =0.0
     for epoch in range(args.start_epoch, args.end_epoch):
         Net.train()
         running_loss = 0
@@ -193,7 +194,6 @@ if args.with_arc == False:
         vtotal = 0
         vcorrect = 0
 
-        eval_acc =0.0
         # if not freezed and epoch <= args.tune_epoch and "resnet" in args.model:
         #     print(f"[INFO]: freeze resnet for {args.tune_epoch - epoch} epochs")
         #     freeze_Resnet(Net)
